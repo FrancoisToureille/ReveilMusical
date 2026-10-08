@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image, run tests, coverage, audit and compile
+        run: docker compose build
+      - name: Start service
+        run: docker compose up -d
+      - name: Check health endpoint
+        run: |
+          for attempt in {1..15}; do
+            curl --fail http://localhost:3000/health && exit 0
+            sleep 2
+          done
+          docker compose logs
+          exit 1
+      - name: Stop service
+        if: always()
+        run: docker compose down

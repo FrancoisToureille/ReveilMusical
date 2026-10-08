@@ -1,0 +1,21 @@
+services:
+  reveil-musical:
+    build:
+      context: .
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MUSIC_PROVIDER: ${MUSIC_PROVIDER:-itunes}
+      ITUNES_BASE_URL: ${ITUNES_BASE_URL:-https://itunes.apple.com/search}
+      MUSICBRAINZ_USER_AGENT: ${MUSICBRAINZ_USER_AGENT:-ReveilMusical/1.0 contact@example.com}
+      MUSICBRAINZ_BASE_URL: ${MUSICBRAINZ_BASE_URL:-https://musicbrainz.org/ws/2/recording}
+      NOTIFICATION_MODE: ${NOTIFICATION_MODE:-mock}
+      MUSIC_CACHE_TTL_MS: ${MUSIC_CACHE_TTL_MS:-300000}
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/health').then(response => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
